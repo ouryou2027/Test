@@ -1,14 +1,15 @@
 import csv
 
-def is_last_row_csv(file_path):
+def get_last_row_index(file_path):
+    last_row_index = -1  # 初始化为-1，因为索引从0开始
     with open(file_path, 'r', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
-        for i, row in enumerate(reader):
-            yield row, i == (sum(1 for _ in reader) - 1)
+        for i, _ in enumerate(reader):
+            last_row_index = i
+
+    # 循环结束后返回最后一行的行号
+    return last_row_index
 
 # 示例用法
-for row, is_last in is_last_row_csv('yourfile.csv'):
-    if is_last:
-        print("This is the last row:", row)
-    else:
-        print("This is not the last row:", row)
+last_row_index = get_last_row_index('yourfile.csv')
+print("The last row index is:", last_row_index)
