@@ -1,44 +1,14 @@
-import openpyxl
+import csv
 
-def replace_in_excel(file_path, replacements, output_path=None, sheet_names=None):
-    # 打开Excel文件
-    wb = openpyxl.load_workbook(file_path)
-    
-    # 确定需要处理的sheets
-    sheets_to_process = []
-    if sheet_names:
-        for name in sheet_names:
-            if name in wb.sheetnames:
-                sheets_to_process.append(wb[name])
-            else:
-                print(f"Sheet '{name}' not found in the workbook.")
+def is_last_row_csv(file_path):
+    with open(file_path, 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for i, row in enumerate(reader):
+            yield row, i == (sum(1 for _ in reader) - 1)
+
+# 示例用法
+for row, is_last in is_last_row_csv('yourfile.csv'):
+    if is_last:
+        print("This is the last row:", row)
     else:
-        sheets_to_process = wb.worksheets
-    
-    # 遍历指定的sheet
-    for sheet in sheets_to_process:
-        # 遍历所有单元格
-        for row in sheet.iter_rows():
-            for cell in row:
-                if cell.value and isinstance(cell.value, str):
-                    for key, value in replacements.items():
-                        if key in cell.value:
-                            cell.value = cell.value.replace(key, value)
-    
-    # 保存修改后的Excel文件
-    if output_path:
-        wb.save(output_path)
-    else:
-        wb.save(file_path)
-
-# 示例使用
-file_path = 'example.xlsx'
-output_path = 'example_output.xlsx'
-replacements = {
-    '{{name}}': 'John Doe',
-    '{{date}}': '2024-05-27',
-    '{{location}}': 'New York'
-}
-sheet_names = ['Sheet1', 'Sheet2']  # 指定要处理的多个sheet名字
-
-replace_in_excel(file_path, replacements, output_path, sheet_names)
+        print("This is not the last row:", row)
